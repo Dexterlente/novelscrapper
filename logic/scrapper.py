@@ -47,15 +47,24 @@ def scrape(sb, url):
 
         next_page_link = soup.find("li", class_="PagedList-skipToNext")
         if next_page_link:
-            next_page_url = next_page_link.find("a")["href"]
-            print(f"Going to next page: {next_page_url}")
-            sb.uc_open_with_reconnect(next_page_url)
-            time.sleep(3)  # Wait for the page to load
+            for retry_count in range(3):
+                try:
+                    next_page_url = next_page_link.find("a")["href"]
+                    print(f"Going to next page: {next_page_url}")
+                    sb.uc_open_with_reconnect(next_page_url)
+                    time.sleep(3)
+                    break
+                except Exception as e:
+                    print(f"Error occurred: {e}. Retrying...")
+                    solve_captcha(sb)
+                    time.sleep(2)
+            else:
+                print("No more retries, exiting scraping.")
+                break
         else:
-            print("No more pages to scrape.")
-            break 
-        
-    print(f"Total novels found: {len(novel_items)}")
+                print("No more pages to scrape.")
+                break 
+
     print("Scraped")
         
     time.sleep(300)
