@@ -28,16 +28,9 @@ def scrape(sb, url):
         link = f"https://www.lightnovelcave.com{link}" if link.startswith("/") else link
 
         # Extract image
-        image_tag = item.find("img", class_="novel-cover")
-        image_url = image_tag["data-src"] if image_tag else "No Image"
-
-        # Extract badges
-        badges = item.find_all("span", class_="badge")
-        badge_info = [badge.get_text(strip=True) for badge in badges]
-
-        # Extract stats
-        stats_tag = item.find("span", class_="uppercase")
-        stats = stats_tag.get_text(strip=True) if stats_tag else "No Stats"
+        figure_tag = item.find("figure", class_="novel-cover")
+        image_tag = figure_tag.find("img") if figure_tag else None
+        image_url = image_tag["src"] if image_tag else "No Image"
 
         # Print details one by one with a pause
         print(f"Title: {title}")
@@ -47,12 +40,6 @@ def scrape(sb, url):
         time.sleep(1)
 
         print(f"Image URL: {image_url}")
-        time.sleep(1)
-
-        print(f"Badges: {badge_info}")
-        time.sleep(1)
-
-        print(f"Stats: {stats}")
         time.sleep(1)
 
         print("-" * 80)
