@@ -59,7 +59,7 @@ def extract_categories(detail_soup):
         print("Categories:")
         category_list = [category.get_text(strip=True) for category in categories]
         print(category_list)
-        
+
     else:
         print("No categories found.")
 
@@ -91,6 +91,11 @@ def extract_tags(detail_soup):
     else:
         print("Tags section not found.")
 
+def navigate_to_chapters(detail_soup):
+    link = detail_soup.find("a", class_="grdbtn chapter-latest-container")
+    href = link.get("href") if link else None
+    return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
+
 def scrape(sb, url):
 
     call_url_and_solve(sb, url)  
@@ -120,6 +125,10 @@ def scrape(sb, url):
                 extract_categories(detail_soup)
                 extract_summary(detail_soup)
                 extract_tags(detail_soup)
+
+                chapter_link = navigate_to_chapters(detail_soup)
+                call_url_and_solve(chapter_link)
+
 
             except Exception as e:
                 print(f"Error occurred while clicking the link: {e}")
