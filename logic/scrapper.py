@@ -57,9 +57,9 @@ def extract_categories(detail_soup):
     if categories_section:
         categories = categories_section.find_all("a", class_="property-item")
         print("Categories:")
-        for category in categories:
-            category_name = category.get_text(strip=True)
-            print(f"- {category_name}")
+        category_list = [category.get_text(strip=True) for category in categories]
+        print(category_list)
+        
     else:
         print("No categories found.")
 
@@ -108,7 +108,7 @@ def scrape(sb, url):
 
             link = extract_title_link(item)
             print("-" * 80)
-            
+
             try:
                 print(f"Clicking on the link: {link}")
                 call_url_and_solve(sb, link)
