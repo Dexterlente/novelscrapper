@@ -2,6 +2,11 @@ from bs4 import BeautifulSoup
 import time
 from captcha_solver import solve_captcha
 
+def call_url_and_solve(sb, link):
+    sb.uc_open_with_reconnect(link)
+    solve_captcha(sb)
+    time.sleep(3)
+
 def handle_next_page(sb, soup):
     """Handles the process of finding and opening the next page."""
     next_page_link = soup.find("li", class_="PagedList-skipToNext")
@@ -10,9 +15,7 @@ def handle_next_page(sb, soup):
             try:
                 next_page_url = next_page_link.find("a")["href"]
                 print(f"Going to next page: {next_page_url}")
-                sb.uc_open_with_reconnect(next_page_url)
-                solve_captcha(sb)
-                time.sleep(3)
+                call_url_and_solve(sb, next_page_url)
                 return True
             except Exception as e:
                 print(f"Error occurred: {e}. Retrying...")
@@ -24,10 +27,56 @@ def handle_next_page(sb, soup):
         print("No more pages to scrape.")
         return False
 
+def extract_image(detail_soup):
+    img_tag = detail_soup.find("img", class_="lazyloaded", alt=True)
+    if img_tag:
+        detail_image_url = img_tag["src"]
+        print(f"Detail Image URL: {detail_image_url}")
+    else:
+        print("Image not found on the detail page.")
+
+def extract_categories(detail_soup):
+    categories_section = detail_soup.find("div", class_="categories")
+    if categories_section:
+        categories = categories_section.find_all("a", class_="property-item")
+        print("Categories:")
+        for category in categories:
+            category_name = category.get_text(strip=True)
+            print(f"- {category_name}")
+    else:
+        print("No categories found.")
+
+def extract_summary(detail_soup):
+    summary_section = detail_soup.find("div", class_="summary")
+    if summary_section:
+        paragraphs = summary_section.find_all("p")
+
+        print("Summary:")
+        for p in paragraphs:
+            print(p.prettify())
+    else:
+        print("Summary section not found.")
+
+def extract_tags(detail_soup):
+    tags_section = detail_soup.find("div", class_="tags")
+    if tags_section:
+
+        li_elements = tags_section.find_all("li")
+        
+        tags = []
+        for li in li_elements:
+            a_tag = li.find("a", title=True)
+            if a_tag:
+                tag_title = a_tag["title"]
+                tags.append(tag_title)
+        
+        print(tags)
+    else:
+        print("Tags section not found.")
+
 def scrape(sb, url):
-    sb.uc_open_with_reconnect(url)
-    solve_captcha(sb)
-    
+
+    call_url_and_solve(sb, url)  
     sb.set_messenger_theme(location="top_left")
     sb.post_message("SeleniumBase wasn't detected", duration=3)
 
@@ -62,56 +111,18 @@ def scrape(sb, url):
             print("-" * 80)
             try:
                 print(f"Clicking on the link: {link}")
-                sb.uc_open_with_reconnect(link)
-                solve_captcha(sb)
-                time.sleep(3)
+                call_url_and_solve(sb, link)
 
                 page_source = sb.get_page_source()
                 detail_soup = BeautifulSoup(page_source, 'html.parser')
 
-                img_tag = detail_soup.find("img", class_="lazyloaded", alt=True)
-                if img_tag:
-                    detail_image_url = img_tag["src"]
-                    print(f"Detail Image URL: {detail_image_url}")
-                else:
-                    print("Image not found on the detail page.")
-                time.sleep(2)
+                extract_image(detail_soup)
 
-                categories_section = detail_soup.find("div", class_="categories")
-                if categories_section:
-                    categories = categories_section.find_all("a", class_="property-item")
-                    print("Categories:")
-                    for category in categories:
-                        category_name = category.get_text(strip=True)
-                        print(f"- {category_name}")
-                else:
-                    print("No categories found.")
+                extract_categories(detail_soup)
 
-                summary_section = detail_soup.find("div", class_="summary")
-                if summary_section:
-                    paragraphs = summary_section.find_all("p")
+                extract_summary(detail_soup)
 
-                    print("Summary:")
-                    for p in paragraphs:
-                        print(p.prettify())
-                else:
-                    print("Summary section not found.")
-
-                tags_section = detail_soup.find("div", class_="tags")
-                if tags_section:
-
-                    li_elements = tags_section.find_all("li")
-                    
-                    tags = []
-                    for li in li_elements:
-                        a_tag = li.find("a", title=True)
-                        if a_tag:
-                            tag_title = a_tag["title"]
-                            tags.append(tag_title)
-                    
-                    print(tags)
-                else:
-                    print("Tags section not found.")
+                extract_tags(detail_soup)
 
             except Exception as e:
                 print(f"Error occurred while clicking the link: {e}")
