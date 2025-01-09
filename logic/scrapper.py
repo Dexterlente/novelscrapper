@@ -87,6 +87,32 @@ def scrape(sb, url):
                 else:
                     print("No categories found.")
 
+                summary_section = detail_soup.find("div", class_="summary")
+                if summary_section:
+                    paragraphs = summary_section.find_all("p")
+
+                    print("Summary:")
+                    for p in paragraphs:
+                        print(p.prettify())
+                else:
+                    print("Summary section not found.")
+
+                tags_section = detail_soup.find("div", class_="tags")
+                if tags_section:
+
+                    li_elements = tags_section.find_all("li")
+                    
+                    tags = []
+                    for li in li_elements:
+                        a_tag = li.find("a", title=True)
+                        if a_tag:
+                            tag_title = a_tag["title"]
+                            tags.append(tag_title)
+                    
+                    print(tags)
+                else:
+                    print("Tags section not found.")
+
             except Exception as e:
                 print(f"Error occurred while clicking the link: {e}")
                 continue
