@@ -30,7 +30,5 @@ class LightNovelScraper:
 url = "https://www.lightnovelcave.com/browse/genre-action-04061342/order-new/status-all"
 scraper = LightNovelScraper(url)
 
-# Start the session
 with scraper.start_session() as sb:
-    # Perform the scraping logic
     scraper.scrape(sb)
