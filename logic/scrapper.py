@@ -27,6 +27,23 @@ def handle_next_page(sb, soup):
         print("No more pages to scrape.")
         return False
 
+def extract_title_link(item):
+    title_tag = item.find("a", title=True)
+    title = title_tag["title"] if title_tag else "Unknown Title"
+    
+    print(f"Title: {title}")
+        
+    link = title_tag["href"] if title_tag else "No Link"
+    link = f"https://www.lightnovelcave.com{link}" if link.startswith("/") else link
+    print(f"Link: {link}")
+
+    figure_tag = item.find("figure", class_="novel-cover")
+    image_tag = figure_tag.find("img") if figure_tag else None
+    image_url = image_tag["src"] if image_tag else "No Image"
+    print(f"Image Cover URL: {image_url}")
+    time.sleep(1)
+    return link
+
 def extract_image(detail_soup):
     img_tag = detail_soup.find("img", class_="lazyloaded", alt=True)
     if img_tag:
@@ -89,26 +106,9 @@ def scrape(sb, url):
         for index, item in enumerate(novel_items, start=1):
             print(f"Novel {index}:")
 
-            title_tag = item.find("a", title=True)
-            title = title_tag["title"] if title_tag else "Unknown Title"
-
-            link = title_tag["href"] if title_tag else "No Link"
-            link = f"https://www.lightnovelcave.com{link}" if link.startswith("/") else link
-
-            figure_tag = item.find("figure", class_="novel-cover")
-            image_tag = figure_tag.find("img") if figure_tag else None
-            image_url = image_tag["src"] if image_tag else "No Image"
-
-            print(f"Title: {title}")
-            time.sleep(1)
-
-            print(f"Link: {link}")
-            time.sleep(1)
-
-            print(f"Image URL: {image_url}")
-            time.sleep(1)
-
+            link = extract_title_link(item)
             print("-" * 80)
+            
             try:
                 print(f"Clicking on the link: {link}")
                 call_url_and_solve(sb, link)
@@ -117,11 +117,8 @@ def scrape(sb, url):
                 detail_soup = BeautifulSoup(page_source, 'html.parser')
 
                 extract_image(detail_soup)
-
                 extract_categories(detail_soup)
-
                 extract_summary(detail_soup)
-
                 extract_tags(detail_soup)
 
             except Exception as e:
