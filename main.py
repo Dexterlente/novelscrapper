@@ -25,7 +25,7 @@ class LightNovelScraper:
         
         print("Scraped")
  
-        time.sleep(3)
+        time.sleep(300)
 
 url = "https://www.lightnovelcave.com/browse/genre-action-04061342/order-new/status-all"
 scraper = LightNovelScraper(url)
