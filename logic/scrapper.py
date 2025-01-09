@@ -96,6 +96,12 @@ def navigate_to_chapters(detail_soup):
     href = link.get("href") if link else None
     return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
 
+def navigate_to_first_chapter(chapter_soup):
+    link = chapter_soup.select_one("ul.chapter-list li a")
+    href = link["href"] if link else None
+    return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
+
+
 def scrape(sb, url):
 
     call_url_and_solve(sb, url)  
@@ -127,8 +133,29 @@ def scrape(sb, url):
                 extract_tags(detail_soup)
 
                 chapter_link = navigate_to_chapters(detail_soup)
-                call_url_and_solve(chapter_link)
+                try:
+                    print(f"Clicking on the chapter_link: {chapter_link}")
+                    call_url_and_solve(sb, chapter_link)
+                    page_source = sb.get_page_source()
+                    chapter_soup = BeautifulSoup(page_source, 'html.parser')
+                    chapter = navigate_to_first_chapter(chapter_soup)
+                    try:
+                        print(f"Clicking on the chapter: {chapter}")
+                        call_url_and_solve(sb, chapter)
+                        page_source = sb.get_page_source()
+                        chapter = BeautifulSoup(page_source, 'html.parser')
+                        p_tags = chapter.select('#chapter-container p')
+                        for p in p_tags:
+                            print(p.text)
 
+
+                    except Exception as e:
+                        print(f"Error occurred while clicking the link: {e}")
+                        continue
+               
+                except Exception as e:
+                    print(f"Error occurred while clicking the link: {e}")
+                    continue
 
             except Exception as e:
                 print(f"Error occurred while clicking the link: {e}")
