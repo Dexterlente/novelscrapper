@@ -9,8 +9,7 @@ class LightNovelScraper:
         return SB(uc=True, headless=False, test=True)
 
 
-# url = "https://www.lightnovelcave.com/browse/genre-action-04061342/order-new/status-all"
-url = "https://www.lightnovelcave.com/browse/genre-action-04061342/order-new/status-all?page=37"
+url = "https://www.lightnovelcave.com/browse/genre-action-04061342/order-new/status-all"
 scraper = LightNovelScraper(url)
 
 with scraper.start_session() as sb:
