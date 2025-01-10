@@ -3,6 +3,7 @@ import time
 from captcha_solver import solve_captcha
 import re
 from insert.insert import insert_novel, insert_chapter, update_last_chapter
+from checker.checker import get_last_chapter
 
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
@@ -107,10 +108,15 @@ def navigate_to_chapters(detail_soup):
     href = link.get("href") if link else None
     return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
 
-def navigate_to_first_chapter(chapter_soup):
+def navigate_to_first_chapter(chapter_soup, novel_id):
+    last_chapter = get_last_chapter(novel_id)
     link = chapter_soup.select_one("ul.chapter-list li a")
     href = link["href"] if link else None
-    return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
+    if last_chapter is None:
+        return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
+    else:
+        new_href = href.replace(f"chapter-{href.split('-')[-1]}", f"chapter-{last_chapter}")
+        return f"https://www.lightnovelcave.com{new_href}" if new_href and new_href.startswith("/") else new_href
 
 def navigate_next_chapter(soup):
     anchor_tag = soup.find('a', class_='button nextchap')
@@ -194,7 +200,7 @@ def scrape(sb, url):
                     call_url_and_solve(sb, chapter_link)
                     page_source = sb.get_page_source()
                     chapter_soup = BeautifulSoup(page_source, 'html.parser')
-                    chapter = navigate_to_first_chapter(chapter_soup)
+                    chapter = navigate_to_first_chapter(chapter_soup, novel_id)
                     process_chapters(sb, chapter, novel_id)
                 
                 except Exception as e:
