@@ -1,4 +1,4 @@
-from db_connection import create_connection
+from database.db_connection import create_connection
 
 def insert_novel(image_url, image_cover_url, title, genre, synopsis, author, tags):
     conn, cursor = create_connection()

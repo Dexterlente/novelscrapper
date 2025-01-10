@@ -1,4 +1,4 @@
-from db_connection import create_connection
+from database.db_connection import create_connection
 
 def get_last_chapter(novel_id):
     conn, cursor = create_connection()
