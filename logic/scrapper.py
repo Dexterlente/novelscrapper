@@ -144,6 +144,11 @@ def scrape(sb, url):
                         call_url_and_solve(sb, chapter)
                         page_source = sb.get_page_source()
                         chapter = BeautifulSoup(page_source, 'html.parser')
+
+                        title_tag = chapter.select_one('span.chapter-title')
+                        if title_tag:
+                            print("Chapter Title:", title_tag.text)
+
                         p_tags = chapter.select('#chapter-container p')
                         for p in p_tags:
                             print(p.text)
