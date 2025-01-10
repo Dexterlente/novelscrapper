@@ -92,6 +92,11 @@ def extract_tags(detail_soup):
     else:
         print("Tags section not found.")
 
+def extract_author(detail_soup):
+    author = detail_soup.find('span', {'itemprop': 'author'})
+    if author:
+        print(author.text)
+
 def navigate_to_chapters(detail_soup):
     link = detail_soup.find("a", class_="grdbtn chapter-latest-container")
     href = link.get("href") if link else None
@@ -173,6 +178,7 @@ def scrape(sb, url):
                 extract_categories(detail_soup)
                 extract_summary(detail_soup)
                 extract_tags(detail_soup)
+                extract_author(detail_soup)
 
                 chapter_link = navigate_to_chapters(detail_soup)
                 try:
