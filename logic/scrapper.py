@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import time
 from captcha_solver import solve_captcha
+import re
 
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
@@ -119,12 +120,18 @@ def process_chapters(sb, chapter):
     while chapter:
         try:
             print(f"Clicking on the chapter: {chapter}")
+   
             call_url_and_solve(sb, chapter)
             page_source = sb.get_page_source()
-            chapter = BeautifulSoup(page_source, 'html.parser')
+            soup = BeautifulSoup(page_source, 'html.parser')
+            
+            extract_chapter(soup)
+            match = re.search(r'chapter-(\d+)', chapter)
+            if match:
+                chapter_number = match.group(1)
+                print(f"Extracted chapter number: {chapter_number}")
 
-            extract_chapter(chapter)
-            next_chapter_url = navigate_next_chapter(chapter)
+            next_chapter_url = navigate_next_chapter(soup)          
 
             if next_chapter_url:
                 chapter = f"{next_chapter_url}"

@@ -14,4 +14,4 @@ scraper = LightNovelScraper(url)
 
 with scraper.start_session() as sb:
     scrape(sb, scraper.url)
- 
+  
