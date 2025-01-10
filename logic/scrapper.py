@@ -113,7 +113,29 @@ def extract_chapter(chapter):
 
     p_tags = chapter.select('#chapter-container p')
     for p in p_tags:
-        print(p) 
+        print(p)
+
+def process_chapters(sb, chapter):
+    while chapter:
+        try:
+            print(f"Clicking on the chapter: {chapter}")
+            call_url_and_solve(sb, chapter)
+            page_source = sb.get_page_source()
+            chapter = BeautifulSoup(page_source, 'html.parser')
+
+            extract_chapter(chapter)
+            next_chapter_url = navigate_next_chapter(chapter)
+
+            if next_chapter_url:
+                chapter = f"{next_chapter_url}"
+                print(f"Next chapter found, moving to: {chapter}")
+            else:
+                print("No more chapters found. Exiting loop.")
+                break
+
+        except Exception as e:
+            print(f"Error occurred while clicking the link: {e}")
+            continue
 
 def scrape(sb, url):
 
@@ -152,26 +174,7 @@ def scrape(sb, url):
                     page_source = sb.get_page_source()
                     chapter_soup = BeautifulSoup(page_source, 'html.parser')
                     chapter = navigate_to_first_chapter(chapter_soup)
-                    while chapter:
-                        try:
-                            print(f"Clicking on the chapter: {chapter}")
-                            call_url_and_solve(sb, chapter)
-                            page_source = sb.get_page_source()
-                            chapter = BeautifulSoup(page_source, 'html.parser')
-
-                            extract_chapter(chapter)
-                            next_chapter_url = navigate_next_chapter(chapter)
-
-                            if next_chapter_url:
-                                chapter = f"{next_chapter_url}"
-                                print(f"Next chapter found, moving to: {chapter}")
-                            else:
-                                print("No more chapters found. Exiting loop.")
-                                break
-
-                        except Exception as e:
-                            print(f"Error occurred while clicking the link: {e}")
-                            continue
+                    process_chapters(sb, chapter)
                 
                 except Exception as e:
                     print(f"Error occurred while clicking the link: {e}")
