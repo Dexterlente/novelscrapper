@@ -1,27 +1,27 @@
 from database.db_connection import create_connection
+from sqlalchemy import text
 
 def get_last_chapter(novel_id):
-    conn, cursor = create_connection()
+    engine, _ = create_connection()
 
-    if conn and cursor:
+    if engine:
         try:
-            # Define the SQL query to get the last chapter for a given novel_id
-            query = """
-                SELECT last_chapter FROM novels WHERE novel_id = :novel_id;
-            """
-            cursor.execute(query, {'novel_id': novel_id})
-            result = cursor.fetchone()
-            
-            if result:
-                return (int(result[0]) + 1) if result[0] is not None else None
-            else:
-                print(f"No novel found with id {novel_id}")
-                return None
+            with engine.connect() as conn:
+                query = text("""
+                    SELECT last_chapter FROM novels WHERE novel_id = :novel_id;
+                """)
+
+                result = conn.execute(query, {'novel_id': novel_id}).fetchone()
+
+                if result:
+                    last_chapter = result[0]
+                    return (int(last_chapter) + 1) if last_chapter is not None else None
+                else:
+                    print(f"No novel found with id {novel_id}")
+                    return None
         except Exception as e:
             print("Error retrieving last chapter:", e)
-        finally:
-            cursor.close()
-            conn.close()
+
     else:
         print("Failed to retrieve last chapter due to connection error.")
         return None

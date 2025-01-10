@@ -3,10 +3,8 @@ from sqlalchemy import text
 
 def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tags):
     engine, conn = create_connection()
-    if isinstance(synopsis, str):
-        synopsis_text = synopsis
-    else:
-        synopsis_text = synopsis.text if hasattr(synopsis, 'text') else str(synopsis)
+    
+    synopsis_text = str(synopsis) if not isinstance(synopsis, str) else synopsis
 
     if conn:
         try:

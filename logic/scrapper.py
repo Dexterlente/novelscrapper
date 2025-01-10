@@ -74,11 +74,13 @@ def extract_summary(detail_soup):
         paragraphs = summary_section.find_all("p")
 
         print("Summary:")
-        for p in paragraphs:
-            print(p)
-            return p
+        all_paragraphs = "".join(str(p) for p in paragraphs)
+
+        print(all_paragraphs)
+        return all_paragraphs
     else:
         print("Summary section not found.")
+        return ""
 
 def extract_tags(detail_soup):
     tags_section = detail_soup.find("div", class_="tags")
@@ -129,8 +131,9 @@ def extract_chapter(chapter):
     title = title_tag.text if title_tag else None
 
     p_tags = chapter.select('#chapter-container p')
-    print(p_tags)
-    
+    for p_tag in p_tags:
+        print(p_tag)
+        
     return title, p_tags
 
 def process_chapters(sb, chapter, novel_id):
@@ -196,17 +199,18 @@ def scrape(sb, url):
                 author = extract_author(detail_soup)
                 novel_id = insert_novel(image, image_cover, title, summary, author, categories, tags)
                 chapter_link = navigate_to_chapters(detail_soup)
-                # try:
-                #     print(f"Clicking on the chapter_link: {chapter_link}")
-                #     call_url_and_solve(sb, chapter_link)
-                #     page_source = sb.get_page_source()
-                #     chapter_soup = BeautifulSoup(page_source, 'html.parser')
-                #     chapter = navigate_to_first_chapter(chapter_soup, novel_id)
-                #     process_chapters(sb, chapter, novel_id)
+                try:
+                    print(f"Clicking on the chapter_link: {chapter_link}")
+                    call_url_and_solve(sb, chapter_link)
+                    page_source = sb.get_page_source()
+                    chapter_soup = BeautifulSoup(page_source, 'html.parser')
+                    chapter = navigate_to_first_chapter(chapter_soup, novel_id)
+                    print(f"Chapter go to {chapter}")
+                    # process_chapters(sb, chapter, novel_id)
                 
-                # except Exception as e:
-                #     print(f"Error occurred while clicking the link: {e}")
-                #     continue
+                except Exception as e:
+                    print(f"Error occurred while clicking the link: {e}")
+                    continue
 
             except Exception as e:
                 print(f"Error occurred while clicking the link: {e}")
