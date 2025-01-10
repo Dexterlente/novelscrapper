@@ -194,7 +194,7 @@ def scrape(sb, url):
                 summary = extract_summary(detail_soup)
                 tags = extract_tags(detail_soup)
                 author = extract_author(detail_soup)
-                novel_id = insert_novel(image, image_cover, title, summary, author)
+                novel_id = insert_novel(image, image_cover, title, summary, author, categories, tags)
                 chapter_link = navigate_to_chapters(detail_soup)
                 # try:
                 #     print(f"Clicking on the chapter_link: {chapter_link}")

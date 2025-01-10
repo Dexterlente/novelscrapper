@@ -1,7 +1,7 @@
 from database.db_connection import create_connection
 from sqlalchemy import text
 
-def insert_novel(image_url, image_cover_url, title, synopsis, author):
+def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tags):
     engine, conn = create_connection()
     if isinstance(synopsis, str):
         synopsis_text = synopsis
@@ -10,29 +10,30 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author):
 
     if conn:
         try:
-            print("Inserting novel with the following details:")
-            print(f"image_url: {image_url} (type: {type(image_url)})")
-            print(f"image_cover_url: {image_cover_url} (type: {type(image_cover_url)})")
-            print(f"title: {title} (type: {type(title)})")
-            print(f"synopsis: {synopsis_text} (type: {type(synopsis_text)})")
-            print(f"author: {author} (type: {type(author)})")
+            existing_novel_query = text("SELECT novel_id FROM novels WHERE title = :title;")
+            result = conn.execute(existing_novel_query, {"title": title})
+            existing_novel = result.fetchone()
+
+            if existing_novel:
+                print(f"Novel '{title}' already exists. Skipping insertion.")
+                return
 
             insert_novel_query = text("""
-            INSERT INTO novels (image_url, image_cover_url, title, synopsis, author)
-            VALUES (:image_url, :image_cover_url, :title, :synopsis, :author)
+            INSERT INTO novels (image_url, image_cover_url, title, synopsis, author, genre, tags)
+            VALUES (:image_url, :image_cover_url, :title, :synopsis, :author , :genre, :tags)
             RETURNING novel_id;
             """)
 
-            # Execute the query using the connection object
             result = conn.execute(insert_novel_query, {
                 "image_url": image_url,
                 "image_cover_url": image_cover_url,
                 "title": title,
                 "synopsis": synopsis_text,
-                "author": author
+                "author": author,
+                "genre": genre,
+                "tags": tags
             })
 
-            # Fetch the ID of the inserted novel
             novel_id = result.fetchone()[0]
             print(f"Novel inserted successfully with ID: {novel_id}")
             conn.commit()
