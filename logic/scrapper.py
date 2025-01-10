@@ -65,6 +65,7 @@ def extract_categories(detail_soup):
         print(category_list)
         return category_list
     else:
+        return []
         print("No categories found.")
 
 def extract_summary(detail_soup):
@@ -193,19 +194,19 @@ def scrape(sb, url):
                 summary = extract_summary(detail_soup)
                 tags = extract_tags(detail_soup)
                 author = extract_author(detail_soup)
-                novel_id = insert_novel(image, image_cover, title, categories, summary, author, tags)
+                novel_id = insert_novel(image, image_cover, title, summary, author)
                 chapter_link = navigate_to_chapters(detail_soup)
-                try:
-                    print(f"Clicking on the chapter_link: {chapter_link}")
-                    call_url_and_solve(sb, chapter_link)
-                    page_source = sb.get_page_source()
-                    chapter_soup = BeautifulSoup(page_source, 'html.parser')
-                    chapter = navigate_to_first_chapter(chapter_soup, novel_id)
-                    process_chapters(sb, chapter, novel_id)
+                # try:
+                #     print(f"Clicking on the chapter_link: {chapter_link}")
+                #     call_url_and_solve(sb, chapter_link)
+                #     page_source = sb.get_page_source()
+                #     chapter_soup = BeautifulSoup(page_source, 'html.parser')
+                #     chapter = navigate_to_first_chapter(chapter_soup, novel_id)
+                #     process_chapters(sb, chapter, novel_id)
                 
-                except Exception as e:
-                    print(f"Error occurred while clicking the link: {e}")
-                    continue
+                # except Exception as e:
+                #     print(f"Error occurred while clicking the link: {e}")
+                #     continue
 
             except Exception as e:
                 print(f"Error occurred while clicking the link: {e}")

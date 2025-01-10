@@ -1,28 +1,50 @@
 from database.db_connection import create_connection
+from sqlalchemy import text
 
-def insert_novel(image_url, image_cover_url, title, genre, synopsis, author, tags):
-    conn, cursor = create_connection()
+def insert_novel(image_url, image_cover_url, title, synopsis, author):
+    engine, conn = create_connection()
+    if isinstance(synopsis, str):
+        synopsis_text = synopsis
+    else:
+        synopsis_text = synopsis.text if hasattr(synopsis, 'text') else str(synopsis)
 
-    if conn and cursor:
+    if conn:
         try:
-            insert_novel_query = """
-            INSERT INTO novels (image_url, image_cover_url, title, genre, synopsis, author, tags)
-            VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING novel_id;
-            """
-            cursor.execute(insert_novel_query, (image_url, image_cover_url, title, genre, synopsis, author, tags))
-            novel_id = cursor.fetchone()[0] 
-            conn.commit()
+            print("Inserting novel with the following details:")
+            print(f"image_url: {image_url} (type: {type(image_url)})")
+            print(f"image_cover_url: {image_cover_url} (type: {type(image_cover_url)})")
+            print(f"title: {title} (type: {type(title)})")
+            print(f"synopsis: {synopsis_text} (type: {type(synopsis_text)})")
+            print(f"author: {author} (type: {type(author)})")
+
+            insert_novel_query = text("""
+            INSERT INTO novels (image_url, image_cover_url, title, synopsis, author)
+            VALUES (:image_url, :image_cover_url, :title, :synopsis, :author)
+            RETURNING novel_id;
+            """)
+
+            # Execute the query using the connection object
+            result = conn.execute(insert_novel_query, {
+                "image_url": image_url,
+                "image_cover_url": image_cover_url,
+                "title": title,
+                "synopsis": synopsis_text,
+                "author": author
+            })
+
+            # Fetch the ID of the inserted novel
+            novel_id = result.fetchone()[0]
             print(f"Novel inserted successfully with ID: {novel_id}")
+            conn.commit()
             return novel_id
+
         except Exception as e:
             print("Error inserting novel:", e)
-            conn.rollback()
         finally:
-            cursor.close()
+            # Close the connection after the operation
             conn.close()
     else:
         print("Failed to insert novel due to connection error.")
-
 
 def insert_chapter(novel_id, title, content, index):
     conn, cursor = create_connection()
@@ -41,7 +63,6 @@ def insert_chapter(novel_id, title, content, index):
             print(f"Chapter inserted successfully with ID: {chapter_id}")
         except Exception as e:
             print("Error inserting chapter:", e)
-            conn.rollback()
         finally:
             cursor.close()
             conn.close()
