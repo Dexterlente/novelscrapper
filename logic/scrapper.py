@@ -70,7 +70,7 @@ def extract_summary(detail_soup):
 
         print("Summary:")
         for p in paragraphs:
-            print(p.prettify())
+            print(p)
     else:
         print("Summary section not found.")
 
@@ -101,6 +101,11 @@ def navigate_to_first_chapter(chapter_soup):
     href = link["href"] if link else None
     return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
 
+def navigate_next_chapter(soup):
+    anchor_tag = soup.find('a', class_='button nextchap')
+    href = anchor_tag['href'] if anchor_tag else None
+    return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
+
 def extract_chapter(chapter):
     title_tag = chapter.select_one('span.chapter-title')
     if title_tag:
@@ -108,7 +113,7 @@ def extract_chapter(chapter):
 
     p_tags = chapter.select('#chapter-container p')
     for p in p_tags:
-        print(p.prettify()) 
+        print(p) 
 
 def scrape(sb, url):
 
@@ -147,18 +152,27 @@ def scrape(sb, url):
                     page_source = sb.get_page_source()
                     chapter_soup = BeautifulSoup(page_source, 'html.parser')
                     chapter = navigate_to_first_chapter(chapter_soup)
-                    try:
-                        print(f"Clicking on the chapter: {chapter}")
-                        call_url_and_solve(sb, chapter)
-                        page_source = sb.get_page_source()
-                        chapter = BeautifulSoup(page_source, 'html.parser')
+                    while chapter:
+                        try:
+                            print(f"Clicking on the chapter: {chapter}")
+                            call_url_and_solve(sb, chapter)
+                            page_source = sb.get_page_source()
+                            chapter = BeautifulSoup(page_source, 'html.parser')
 
-                        extract_chapter(chapter)
+                            extract_chapter(chapter)
+                            next_chapter_url = navigate_next_chapter(chapter)
 
-                    except Exception as e:
-                        print(f"Error occurred while clicking the link: {e}")
-                        continue
-               
+                            if next_chapter_url:
+                                chapter = f"{next_chapter_url}"
+                                print(f"Next chapter found, moving to: {chapter}")
+                            else:
+                                print("No more chapters found. Exiting loop.")
+                                break
+
+                        except Exception as e:
+                            print(f"Error occurred while clicking the link: {e}")
+                            continue
+                
                 except Exception as e:
                     print(f"Error occurred while clicking the link: {e}")
                     continue
