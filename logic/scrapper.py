@@ -101,6 +101,14 @@ def navigate_to_first_chapter(chapter_soup):
     href = link["href"] if link else None
     return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
 
+def extract_chapter(chapter):
+    title_tag = chapter.select_one('span.chapter-title')
+    if title_tag:
+        print("Chapter Title:", title_tag.text)
+
+    p_tags = chapter.select('#chapter-container p')
+    for p in p_tags:
+        print(p.prettify()) 
 
 def scrape(sb, url):
 
@@ -145,14 +153,7 @@ def scrape(sb, url):
                         page_source = sb.get_page_source()
                         chapter = BeautifulSoup(page_source, 'html.parser')
 
-                        title_tag = chapter.select_one('span.chapter-title')
-                        if title_tag:
-                            print("Chapter Title:", title_tag.text)
-
-                        p_tags = chapter.select('#chapter-container p')
-                        for p in p_tags:
-                            print(p.text)
-
+                        extract_chapter(chapter)
 
                     except Exception as e:
                         print(f"Error occurred while clicking the link: {e}")
@@ -171,5 +172,3 @@ def scrape(sb, url):
             break 
 
     print("Scraped")
-        
-    time.sleep(300)
