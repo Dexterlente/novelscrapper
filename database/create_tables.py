@@ -15,6 +15,7 @@ def create_tables():
                 genre TEXT[],
                 synopsis TEXT,
                 tags TEXT[],
+                author VARCHAR(255),
                 last_chapter INTEGER
             );
             """)
