@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import time
 from captcha_solver import solve_captcha
 import re
+from insert.insert import insert_novel
 
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
@@ -43,13 +44,14 @@ def extract_title_link(item):
     image_url = image_tag["src"] if image_tag else "No Image"
     print(f"Image Cover URL: {image_url}")
     time.sleep(1)
-    return link
+    return link, title, image_url
 
 def extract_image(detail_soup):
     img_tag = detail_soup.find("img", class_="lazyloaded", alt=True)
     if img_tag:
         detail_image_url = img_tag["src"]
         print(f"Detail Image URL: {detail_image_url}")
+        return detail_image_url
     else:
         print("Image not found on the detail page.")
 
@@ -60,7 +62,7 @@ def extract_categories(detail_soup):
         print("Categories:")
         category_list = [category.get_text(strip=True) for category in categories]
         print(category_list)
-
+        return category_list
     else:
         print("No categories found.")
 
@@ -72,6 +74,7 @@ def extract_summary(detail_soup):
         print("Summary:")
         for p in paragraphs:
             print(p)
+            return p
     else:
         print("Summary section not found.")
 
@@ -89,6 +92,7 @@ def extract_tags(detail_soup):
                 tags.append(tag_title)
         
         print(tags)
+        return tags
     else:
         print("Tags section not found.")
 
@@ -96,6 +100,7 @@ def extract_author(detail_soup):
     author = detail_soup.find('span', {'itemprop': 'author'})
     if author:
         print(author.text)
+        return author.text
 
 def navigate_to_chapters(detail_soup):
     link = detail_soup.find("a", class_="grdbtn chapter-latest-container")
@@ -164,7 +169,7 @@ def scrape(sb, url):
         for index, item in enumerate(novel_items, start=1):
             print(f"Novel {index}:")
 
-            link = extract_title_link(item)
+            link, title, image_cover = extract_title_link(item)
             print("-" * 80)
 
             try:
@@ -174,12 +179,12 @@ def scrape(sb, url):
                 page_source = sb.get_page_source()
                 detail_soup = BeautifulSoup(page_source, 'html.parser')
 
-                extract_image(detail_soup)
-                extract_categories(detail_soup)
-                extract_summary(detail_soup)
-                extract_tags(detail_soup)
-                extract_author(detail_soup)
-
+                image = extract_image(detail_soup)
+                categories = extract_categories(detail_soup)
+                summary = extract_summary(detail_soup)
+                tags = extract_tags(detail_soup)
+                author = extract_author(detail_soup)
+                insert_novel(image, image_cover, title, categories, summary, author, tags)
                 chapter_link = navigate_to_chapters(detail_soup)
                 try:
                     print(f"Clicking on the chapter_link: {chapter_link}")

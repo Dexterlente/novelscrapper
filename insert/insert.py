@@ -1,15 +1,15 @@
 from db_connection import create_connection
 
-def insert_novel(image_url, title, genre, synopsis, author, last_chapter):
+def insert_novel(image_url, image_cover_url, title, genre, synopsis, author, tags):
     conn, cursor = create_connection()
 
     if conn and cursor:
         try:
             insert_novel_query = """
-            INSERT INTO novels (image_url, title, genre, synopsis, author, last_chapter)
-            VALUES (%s, %s, %s, %s, %s) RETURNING novel_id;
+            INSERT INTO novels (image_url, image_cover_url, title, genre, synopsis, author, tags)
+            VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING novel_id;
             """
-            cursor.execute(insert_novel_query, (image_url, title, genre, synopsis, author, last_chapter))
+            cursor.execute(insert_novel_query, (image_url, image_cover_url, title, genre, synopsis, author, tags))
             novel_id = cursor.fetchone()[0] 
             conn.commit()
             print(f"Novel inserted successfully with ID: {novel_id}")
