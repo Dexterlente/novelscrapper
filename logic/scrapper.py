@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import time
 from captcha_solver import solve_captcha
 import re
-from insert.insert import insert_novel
+from insert.insert import insert_novel, insert_chapter, update_last_chapter
 
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
@@ -119,14 +119,14 @@ def navigate_next_chapter(soup):
 
 def extract_chapter(chapter):
     title_tag = chapter.select_one('span.chapter-title')
-    if title_tag:
-        print("Chapter Title:", title_tag.text)
+    title = title_tag.text if title_tag else None
 
     p_tags = chapter.select('#chapter-container p')
-    for p in p_tags:
-        print(p)
+    print(p_tags)
+    
+    return title, p_tags
 
-def process_chapters(sb, chapter):
+def process_chapters(sb, chapter, novel_id):
     while chapter:
         try:
             print(f"Clicking on the chapter: {chapter}")
@@ -135,11 +135,14 @@ def process_chapters(sb, chapter):
             page_source = sb.get_page_source()
             soup = BeautifulSoup(page_source, 'html.parser')
             
-            extract_chapter(soup)
+            chapter_title, content = extract_chapter(soup)
+
             match = re.search(r'chapter-(\d+)', chapter)
             if match:
                 chapter_number = match.group(1)
                 print(f"Extracted chapter number: {chapter_number}")
+                insert_chapter(novel_id, chapter_title, content, chapter_number)
+                update_last_chapter(novel_id, chapter_number)
 
             next_chapter_url = navigate_next_chapter(soup)          
 
@@ -184,7 +187,7 @@ def scrape(sb, url):
                 summary = extract_summary(detail_soup)
                 tags = extract_tags(detail_soup)
                 author = extract_author(detail_soup)
-                insert_novel(image, image_cover, title, categories, summary, author, tags)
+                novel_id = insert_novel(image, image_cover, title, categories, summary, author, tags)
                 chapter_link = navigate_to_chapters(detail_soup)
                 try:
                     print(f"Clicking on the chapter_link: {chapter_link}")
@@ -192,7 +195,7 @@ def scrape(sb, url):
                     page_source = sb.get_page_source()
                     chapter_soup = BeautifulSoup(page_source, 'html.parser')
                     chapter = navigate_to_first_chapter(chapter_soup)
-                    process_chapters(sb, chapter)
+                    process_chapters(sb, chapter, novel_id)
                 
                 except Exception as e:
                     print(f"Error occurred while clicking the link: {e}")

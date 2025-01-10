@@ -47,3 +47,30 @@ def insert_chapter(novel_id, title, content, index):
             conn.close()
     else:
         print("Failed to insert chapter due to connection error.")
+
+
+def update_last_chapter(novel_id, last_chapter):
+    conn, cursor = create_connection()
+
+    if conn and cursor:
+        try:
+            # SQL query to update the 'last_chapter' of the specific novel
+            update_last_chapter_query = """
+            UPDATE novels
+            SET last_chapter = %s
+            WHERE novel_id = %s;
+            """
+            
+            cursor.execute(update_last_chapter_query, (last_chapter, novel_id))
+
+            conn.commit()
+            print(f"last_chapter for novel_id {novel_id} updated to {last_chapter}")
+
+        except Exception as e:
+            print("Error updating last_chapter:", e)
+            conn.rollback()
+        finally:
+            cursor.close()
+            conn.close()
+    else:
+        print("Failed to update last_chapter due to connection error.")
