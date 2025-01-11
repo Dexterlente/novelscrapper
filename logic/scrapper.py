@@ -206,7 +206,8 @@ def scrape(sb, url):
                     chapter_soup = BeautifulSoup(page_source, 'html.parser')
                     chapter = navigate_to_first_chapter(chapter_soup, novel_id)
                     print(f"Chapter go to {chapter}")
-                    # process_chapters(sb, chapter, novel_id)
+                    print(f"novel_id go to {novel_id}")
+                    process_chapters(sb, chapter, novel_id)
                 
                 except Exception as e:
                     print(f"Error occurred while clicking the link: {e}")

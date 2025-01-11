@@ -14,7 +14,8 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tag
 
             if existing_novel:
                 print(f"Novel '{title}' already exists. Skipping insertion.")
-                return
+                novel_id = existing_novel[0]
+                return novel_id
 
             insert_novel_query = text("""
             INSERT INTO novels (image_url, image_cover_url, title, synopsis, author, genre, tags)
@@ -46,51 +47,58 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tag
         print("Failed to insert novel due to connection error.")
 
 def insert_chapter(novel_id, title, content, index):
-    conn, cursor = create_connection()
+    engine, conn = create_connection()
 
-    if conn and cursor:
+    content_text = str(content) if not isinstance(content, str) else content
+
+    if conn:
         try:
-
-            insert_chapter_query = """
+            insert_chapter_query = text("""
             INSERT INTO chapters (novel_id, title, content, index)
-            VALUES (%s, %s, %s, %s) RETURNING chapter_id;
-            """
+            VALUES (:novel_id, :title, :content, :index) 
+            RETURNING chapter_id;
+            """)
 
-            cursor.execute(insert_chapter_query, (novel_id, title, content, index))
-            chapter_id = cursor.fetchone()[0] 
+            result = conn.execute(insert_chapter_query, {
+                "novel_id": novel_id,
+                "title": title, 
+                "content": content_text, 
+                "index": index
+                })
+
+            chapter_id = result.fetchone()[0] 
             conn.commit()
             print(f"Chapter inserted successfully with ID: {chapter_id}")
         except Exception as e:
             print("Error inserting chapter:", e)
         finally:
-            cursor.close()
             conn.close()
     else:
         print("Failed to insert chapter due to connection error.")
 
 
 def update_last_chapter(novel_id, last_chapter):
-    conn, cursor = create_connection()
+    engine, conn = create_connection()
 
-    if conn and cursor:
+    if conn:
         try:
-            # SQL query to update the 'last_chapter' of the specific novel
-            update_last_chapter_query = """
+            update_last_chapter_query = text("""
             UPDATE novels
-            SET last_chapter = %s
-            WHERE novel_id = %s;
-            """
+            SET last_chapter = :last_chapter
+            WHERE novel_id = :novel_id;
+            """)
             
-            cursor.execute(update_last_chapter_query, (last_chapter, novel_id))
+            conn.execute(update_last_chapter_query, {
+                "last_chapter": last_chapter,
+                "novel_id": novel_id
+                 })
 
             conn.commit()
             print(f"last_chapter for novel_id {novel_id} updated to {last_chapter}")
 
         except Exception as e:
             print("Error updating last_chapter:", e)
-            conn.rollback()
         finally:
-            cursor.close()
             conn.close()
     else:
         print("Failed to update last_chapter due to connection error.")
