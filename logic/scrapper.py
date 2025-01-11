@@ -8,7 +8,7 @@ from checker.checker import get_last_chapter
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
     solve_captcha(sb)
-    time.sleep(2)
+    time.sleep(1)
 
 def handle_next_page(sb, soup):
     """Handles the process of finding and opening the next page."""
@@ -22,7 +22,7 @@ def handle_next_page(sb, soup):
                 return True
             except Exception as e:
                 print(f"Error occurred: {e}. Retrying...")
-                time.sleep(2)
+                time.sleep(1)
         else:
             print("No more retries, exiting scraping.")
             return False
