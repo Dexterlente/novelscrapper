@@ -41,7 +41,6 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tag
         except Exception as e:
             print("Error inserting novel:", e)
         finally:
-            # Close the connection after the operation
             conn.close()
     else:
         print("Failed to insert novel due to connection error.")

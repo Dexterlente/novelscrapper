@@ -131,10 +131,9 @@ def extract_chapter(chapter):
     title = title_tag.text if title_tag else None
 
     p_tags = chapter.select('#chapter-container p')
-    for p_tag in p_tags:
-        print(p_tag)
+    content = "".join(str(p) for p in p_tags)
         
-    return title, p_tags
+    return title, content
 
 def process_chapters(sb, chapter, novel_id):
     while chapter:
