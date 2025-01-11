@@ -8,7 +8,7 @@ from checker.checker import get_last_chapter
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
     solve_captcha(sb)
-    time.sleep(3)
+    time.sleep(2)
 
 def handle_next_page(sb, soup):
     """Handles the process of finding and opening the next page."""
@@ -44,7 +44,6 @@ def extract_title_link(item):
     image_tag = figure_tag.find("img") if figure_tag else None
     image_url = image_tag["src"] if image_tag else "No Image"
     print(f"Image Cover URL: {image_url}")
-    time.sleep(1)
     return link, title, image_url
 
 def extract_image(detail_soup):
