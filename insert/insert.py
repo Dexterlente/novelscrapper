@@ -52,6 +52,14 @@ def insert_chapter(novel_id, title, content, index):
 
     if conn:
         try:
+            existing_chapter_query = text("SELECT novel_id FROM chapters WHERE title = :title;")
+            result = conn.execute(existing_chapter_query, {"novel_id": novel_id, "title": title})
+            existing_chapter = result.fetchone()
+
+            if existing_chapter:
+                print(f"Chapter '{title}' already exists in chapters table.")
+                return
+                
             insert_chapter_query = text("""
             INSERT INTO chapters (novel_id, title, content, index)
             VALUES (:novel_id, :title, :content, :index) 

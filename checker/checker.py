@@ -15,7 +15,7 @@ def get_last_chapter(novel_id):
 
                 if result:
                     last_chapter = result[0]
-                    return (int(last_chapter) + 1) if last_chapter is not None else None
+                    return int(last_chapter) if last_chapter is not None else None
                 else:
                     print(f"No novel found with id {novel_id}")
                     return None
