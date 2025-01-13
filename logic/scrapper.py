@@ -4,6 +4,7 @@ from captcha_solver import solve_captcha
 import re
 from insert.insert import insert_novel, insert_chapter, update_last_chapter
 from checker.checker import get_last_chapter
+from alter.updater import update_subchapters
 
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
@@ -218,5 +219,5 @@ def scrape(sb, url):
 
         if not handle_next_page(sb, soup):
             break 
-
+    update_subchapters()
     print("Scraped")

@@ -2,7 +2,8 @@
 if chapter number is the same add value on the subchapter
 """
 
-"""WITH RankedChapters AS (
+"""
+WITH RankedChapters AS (
     SELECT c.chapter_id,
            ROW_NUMBER() OVER (PARTITION BY c.novel_id, c.index ORDER BY c.timestamp) AS subchapter
     FROM chapters c
@@ -16,7 +17,8 @@ if chapter number is the same add value on the subchapter
 UPDATE chapters c
 SET subchapter = rc.subchapter
 FROM RankedChapters rc
-WHERE c.chapter_id = rc.chapter_id;"""
+WHERE c.chapter_id = rc.chapter_id;
+"""
 
 """ 
 query all chapter with dups numbers as it has subchapter
