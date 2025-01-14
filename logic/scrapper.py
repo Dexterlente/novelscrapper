@@ -149,7 +149,10 @@ def process_chapters(sb, chapter, novel_id):
             if match:
                 chapter_number = match.group(1)
                 print(f"Extracted chapter number: {chapter_number}")
-                insert_chapter(novel_id, chapter_title, content, chapter_number)
+                chapter_result = insert_chapter(novel_id, chapter_title, content, chapter_number)
+                if chapter_result is None:
+                    print(f"Failed to insert chapter or Chapter Already exist {chapter_number}. Exiting loop.")
+                    break
                 update_last_chapter(novel_id, chapter_number)
 
             next_chapter_url = navigate_next_chapter(soup)          

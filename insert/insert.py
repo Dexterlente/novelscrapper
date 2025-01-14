@@ -58,7 +58,7 @@ def insert_chapter(novel_id, title, content, index):
 
             if existing_chapter:
                 print(f"Chapter '{title}' already exists in chapters table.")
-                return
+                return None
                 
             insert_chapter_query = text("""
             INSERT INTO chapters (novel_id, title, content, index)
@@ -76,13 +76,15 @@ def insert_chapter(novel_id, title, content, index):
             chapter_id = result.fetchone()[0] 
             conn.commit()
             print(f"Chapter inserted successfully with ID: {chapter_id}")
+            return chapter_id
         except Exception as e:
             print("Error inserting chapter:", e)
+            return None
         finally:
             conn.close()
     else:
         print("Failed to insert chapter due to connection error.")
-
+        return None
 
 def update_last_chapter(novel_id, last_chapter):
     engine, conn = create_connection()
