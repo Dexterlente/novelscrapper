@@ -33,3 +33,15 @@ JOIN (
     HAVING COUNT(*) > 1
 ) dup ON c.novel_id = dup.novel_id AND c.index = dup.index;
  """
+
+""" check of novel endchapter and latest novel chapter index is matched """
+"""
+        SELECT n.last_chapter, c.index, c.title, c.timestamp AS last_timestamp
+        FROM novels n
+        JOIN chapters c ON n.novel_id = c.novel_id
+        WHERE n.novel_id = 143
+        ORDER BY c.timestamp DESC
+        LIMIT 1;
+
+    UPDATE novels SET last_chapter = 1134 WHERE novel_id = 141;
+"""
