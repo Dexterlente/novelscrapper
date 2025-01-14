@@ -50,6 +50,10 @@ def insert_chapter(novel_id, title, content, index):
 
     content_text = str(content) if not isinstance(content, str) else content
 
+    if not title or not content_text.strip():
+        print("Title or content is empty, skipping chapter insertion.")
+        return None
+
     if conn:
         try:
             existing_chapter_query = text("SELECT novel_id FROM chapters WHERE title = :title;")

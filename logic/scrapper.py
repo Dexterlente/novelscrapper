@@ -135,6 +135,7 @@ def extract_chapter(chapter):
     return title, content
 
 def process_chapters(sb, chapter, novel_id):
+    attempts = 0
     while chapter:
         try:
             print(f"Clicking on the chapter: {chapter}")
@@ -152,8 +153,13 @@ def process_chapters(sb, chapter, novel_id):
                 chapter_result = insert_chapter(novel_id, chapter_title, content, chapter_number)
                 if chapter_result is None:
                     print(f"Failed to insert chapter or Chapter Already exist {chapter_number}. Exiting loop.")
-                    break
-                update_last_chapter(novel_id, chapter_number)
+                    attempts +=1
+                    if attempts >= 8:
+                        print(f"Second page is duplicate chapter {chapter_number}. Exiting loop.")
+                        break
+                else:
+                    attempts = 0
+                    update_last_chapter(novel_id, chapter_number)
 
             next_chapter_url = navigate_next_chapter(soup)          
 
