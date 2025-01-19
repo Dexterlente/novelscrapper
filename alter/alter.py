@@ -45,3 +45,32 @@ JOIN (
 
     UPDATE novels SET last_chapter = 1134 WHERE novel_id = 141;
 """
+""" check all last chapter on novel and the last index on chapters"""
+"""
+WITH LastChapter AS (
+    SELECT novel_id, index, ROW_NUMBER() OVER (PARTITION BY novel_id ORDER BY index DESC) AS row_num
+    FROM chapters
+)
+SELECT 
+    n.last_chapter,
+    lc.novel_id,
+    lc.index
+FROM LastChapter lc
+JOIN novels n ON lc.novel_id = n.novel_id
+WHERE lc.row_num = 1; 
+"""
+
+""" Update all novels end_chapter the same with the last row index on chapter index """
+
+""" UPDATE novels n
+SET last_chapter = (
+    SELECT MAX(c.index)
+    FROM chapters c
+    WHERE c.novel_id = n.novel_id
+)
+WHERE EXISTS (
+    SELECT 1
+    FROM chapters c
+    WHERE c.novel_id = n.novel_id
+);
+ """
