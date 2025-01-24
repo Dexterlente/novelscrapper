@@ -62,7 +62,8 @@ WHERE lc.row_num = 1;
 
 """ Update all novels end_chapter the same with the last row index on chapter index """
 
-""" UPDATE novels n
+""" 
+UPDATE novels n
 SET last_chapter = (
     SELECT MAX(c.index)
     FROM chapters c

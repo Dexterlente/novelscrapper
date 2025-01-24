@@ -8,7 +8,7 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tag
 
     if conn:
         try:
-            existing_novel_query = text("SELECT novel_id FROM novels WHERE title = :title;")
+            existing_novel_query = text("SELECT novel_id FROM novels WHERE title = :title AND author IS NOT NULL AND image_url IS NOT NULL;")
             result = conn.execute(existing_novel_query, {"title": title})
             existing_novel = result.fetchone()
 
