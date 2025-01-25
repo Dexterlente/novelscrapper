@@ -75,3 +75,18 @@ WHERE EXISTS (
     WHERE c.novel_id = n.novel_id
 );
  """
+
+"""
+Query for not having chapter 1 have scrapping problem on the novel fix the data
+"""
+
+"""
+SELECT DISTINCT novel_id
+FROM chapters
+WHERE novel_id NOT IN (
+    SELECT DISTINCT novel_id
+    FROM chapters
+    WHERE index = 1
+);
+
+"""
