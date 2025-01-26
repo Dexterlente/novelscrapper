@@ -8,35 +8,68 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tag
 
     if conn:
         try:
-            existing_novel_query = text("SELECT novel_id FROM novels WHERE title = :title AND author IS NOT NULL AND image_url IS NOT NULL;")
+            existing_novel_query = text("SELECT novel_id, author, image_url FROM novels WHERE title = :title;")
             result = conn.execute(existing_novel_query, {"title": title})
             existing_novel = result.fetchone()
 
             if existing_novel:
                 print(f"Novel '{title}' already exists. Skipping insertion.")
-                novel_id = existing_novel[0]
+                novel_id, existing_author, existing_image_url = existing_novel
+
+                if existing_author is not None and existing_image_url is not None:
+                    print(f"Returning existing novel ID: {novel_id}")
+                    return novel_id
+
+                if existing_author is None or existing_image_url is None:
+                    update_novel_query = text("""
+                    UPDATE novels
+                    SET 
+                        image_url = COALESCE(:image_url, image_url),
+                        image_cover_url = COALESCE(:image_cover_url, image_cover_url),
+                        synopsis = COALESCE(:synopsis, synopsis),
+                        author = COALESCE(:author, author),
+                        genre = COALESCE(:genre, genre),
+                        tags = COALESCE(:tags, tags)
+                    WHERE novel_id = :novel_id
+                    RETURNING novel_id;
+                    """)
+
+                    result = conn.execute(update_novel_query, {
+                        "novel_id": novel_id,
+                        "image_url": image_url,
+                        "image_cover_url": image_cover_url,
+                        "synopsis": synopsis_text,
+                        "author": author,
+                        "genre": genre,
+                        "tags": tags
+                    })
+
+                    novel_id = result.fetchone()[0]
+                    print(f"Novel with ID {novel_id} updated successfully.")
+                    conn.commit()
+                    return novel_id
+
+            else:
+                insert_novel_query = text("""
+                INSERT INTO novels (image_url, image_cover_url, title, synopsis, author, genre, tags)
+                VALUES (:image_url, :image_cover_url, :title, :synopsis, :author , :genre, :tags)
+                RETURNING novel_id;
+                """)
+
+                result = conn.execute(insert_novel_query, {
+                    "image_url": image_url,
+                    "image_cover_url": image_cover_url,
+                    "title": title,
+                    "synopsis": synopsis_text,
+                    "author": author,
+                    "genre": genre,
+                    "tags": tags
+                })
+
+                novel_id = result.fetchone()[0]
+                print(f"Novel inserted successfully with ID: {novel_id}")
+                conn.commit()
                 return novel_id
-
-            insert_novel_query = text("""
-            INSERT INTO novels (image_url, image_cover_url, title, synopsis, author, genre, tags)
-            VALUES (:image_url, :image_cover_url, :title, :synopsis, :author , :genre, :tags)
-            RETURNING novel_id;
-            """)
-
-            result = conn.execute(insert_novel_query, {
-                "image_url": image_url,
-                "image_cover_url": image_cover_url,
-                "title": title,
-                "synopsis": synopsis_text,
-                "author": author,
-                "genre": genre,
-                "tags": tags
-            })
-
-            novel_id = result.fetchone()[0]
-            print(f"Novel inserted successfully with ID: {novel_id}")
-            conn.commit()
-            return novel_id
 
         except Exception as e:
             print("Error inserting novel:", e)
