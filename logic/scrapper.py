@@ -161,8 +161,7 @@ def process_chapters(sb, chapter, novel_id):
                         break
                 else:
                     attempts = 0
-
-                update_last_chapter(novel_id, chapter_number)
+                    update_last_chapter(novel_id, chapter_number)
 
             next_chapter_url = navigate_next_chapter(soup)          
 
