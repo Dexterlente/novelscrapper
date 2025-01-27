@@ -9,6 +9,7 @@ from alter.updater import update_subchapters
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
     solve_captcha(sb)
+    time.sleep(0.5)
 
 def handle_next_page(sb, soup):
     """Handles the process of finding and opening the next page."""
