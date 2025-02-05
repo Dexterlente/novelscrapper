@@ -115,11 +115,16 @@ def navigate_to_first_chapter(chapter_soup, novel_id):
     last_chapter = get_last_chapter(novel_id)
     link = chapter_soup.select_one("ul.chapter-list li a")
     href = link["href"] if link else None
-    if last_chapter is None:
-        return f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
-    else:
-        new_href = href.replace(f"chapter-{href.split('-')[-1]}", f"chapter-{last_chapter}")
-        return f"https://www.lightnovelcave.com{new_href}" if new_href and new_href.startswith("/") else new_href
+
+    absolute_href = f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
+    if "chapter-" in absolute_href:
+        last_chapter = get_last_chapter(novel_id)
+        if last_chapter is not None:
+            new_href = re.sub(r'chapter-\d+', f'chapter-{last_chapter}', absolute_href)
+            return new_href
+            
+    return absolute_href
+
 
 def navigate_next_chapter(soup):
     anchor_tag = soup.find('a', class_='button nextchap')
