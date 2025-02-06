@@ -22,7 +22,8 @@ def update_subchapters():
             UPDATE chapters c
             SET subchapter = rc.subchapter
             FROM RankedChapters rc
-            WHERE c.chapter_id = rc.chapter_id;
+            WHERE c.chapter_id = rc.chapter_id
+            AND c.subchapter IS NULL;
             """
             )
             conn.execute(query)
