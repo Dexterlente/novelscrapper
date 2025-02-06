@@ -162,7 +162,7 @@ def process_chapters(sb, chapter, novel_id):
                 if chapter_result is None:
                     print(f"Failed to insert chapter or Chapter Already exist {chapter_number}. Exiting loop.")
                     attempts +=1
-                    if attempts >= 3:
+                    if attempts >= 5:
                         print(f"Second page is duplicate chapter {chapter_number}. Exiting loop.")
                         attempts = 0
                         break
