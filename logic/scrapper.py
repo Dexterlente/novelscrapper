@@ -9,6 +9,7 @@ from alter.updater import update_subchapters
 def call_url_and_solve(sb, link):
     sb.uc_open_with_reconnect(link)
     solve_captcha(sb)
+    # capcha_solver(sb)
     time.sleep(0.5)
 
 def handle_next_page(sb, soup):
@@ -117,11 +118,12 @@ def navigate_to_first_chapter(chapter_soup, novel_id):
     href = link["href"] if link else None
 
     absolute_href = f"https://www.lightnovelcave.com{href}" if href and href.startswith("/") else href
+    if last_chapter is None:
+        return absolute_href
+
     if "chapter-" in absolute_href:
-        last_chapter = get_last_chapter(novel_id)
-        if last_chapter is not None:
-            new_href = re.sub(r'chapter-\d+', f'chapter-{last_chapter}', absolute_href)
-            return new_href
+        new_href = re.sub(r"(chapter-\d+).*", f"chapter-{last_chapter}", absolute_href)
+        return new_href
             
     return absolute_href
 
