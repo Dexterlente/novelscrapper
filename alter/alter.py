@@ -91,3 +91,17 @@ WHERE novel_id NOT IN (
 );
 
 """
+
+""" 
+ CHECK ALL NOVELS THAT HAS VOLUME ON TITLE AS THIS CAUSING PROB ON ORDER
+"""
+
+""" 
+SELECT *
+FROM novels
+WHERE novel_id IN (
+    SELECT DISTINCT novel_id
+    FROM chapters
+    WHERE title ILIKE '%volume%'
+);
+ """
