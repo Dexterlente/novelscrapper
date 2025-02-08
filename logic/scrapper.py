@@ -42,11 +42,7 @@ def extract_title_link(item):
     link = f"https://www.lightnovelcave.com{link}" if link.startswith("/") else link
     print(f"Link: {link}")
 
-    figure_tag = item.find("figure", class_="novel-cover")
-    image_tag = figure_tag.find("img") if figure_tag else None
-    image_url = image_tag["src"] if image_tag else "No Image"
-    print(f"Image Cover URL: {image_url}")
-    return link, title, image_url
+    return link, title
 
 def extract_image(detail_soup):
     img_tag = detail_soup.find("img", class_="lazyloaded", alt=True)
@@ -198,7 +194,7 @@ def scrape(sb, url):
         for index, item in enumerate(novel_items, start=1):
             print(f"Novel {index}:")
 
-            link, title, image_cover = extract_title_link(item)
+            link, title = extract_title_link(item)
             print("-" * 80)
 
             try:
@@ -213,7 +209,7 @@ def scrape(sb, url):
                 summary = extract_summary(detail_soup)
                 tags = extract_tags(detail_soup)
                 author = extract_author(detail_soup)
-                novel_id = insert_novel(image, image_cover, title, summary, author, categories, tags)
+                novel_id = insert_novel(image, title, summary, author, categories, tags)
                 chapter_link = navigate_to_chapters(detail_soup)
                 try:
                     print(f"Clicking on the chapter_link: {chapter_link}")

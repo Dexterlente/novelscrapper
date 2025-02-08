@@ -1,7 +1,7 @@
 from database.db_connection import create_connection
 from sqlalchemy import text
 
-def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tags):
+def insert_novel(image_url, title, synopsis, author, genre, tags):
     engine, conn = create_connection()
     
     synopsis_text = str(synopsis) if not isinstance(synopsis, str) else synopsis
@@ -25,7 +25,6 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tag
                     UPDATE novels
                     SET 
                         image_url = COALESCE(:image_url, image_url),
-                        image_cover_url = COALESCE(:image_cover_url, image_cover_url),
                         synopsis = COALESCE(:synopsis, synopsis),
                         author = COALESCE(:author, author),
                         genre = COALESCE(:genre, genre),
@@ -37,7 +36,6 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tag
                     result = conn.execute(update_novel_query, {
                         "novel_id": novel_id,
                         "image_url": image_url,
-                        "image_cover_url": image_cover_url,
                         "synopsis": synopsis_text,
                         "author": author,
                         "genre": genre,
@@ -51,14 +49,13 @@ def insert_novel(image_url, image_cover_url, title, synopsis, author, genre, tag
 
             else:
                 insert_novel_query = text("""
-                INSERT INTO novels (image_url, image_cover_url, title, synopsis, author, genre, tags)
-                VALUES (:image_url, :image_cover_url, :title, :synopsis, :author , :genre, :tags)
+                INSERT INTO novels (image_url, title, synopsis, author, genre, tags)
+                VALUES (:image_url, :title, :synopsis, :author , :genre, :tags)
                 RETURNING novel_id;
                 """)
 
                 result = conn.execute(insert_novel_query, {
                     "image_url": image_url,
-                    "image_cover_url": image_cover_url,
                     "title": title,
                     "synopsis": synopsis_text,
                     "author": author,

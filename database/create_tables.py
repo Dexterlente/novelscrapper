@@ -10,7 +10,6 @@ def create_tables():
             CREATE TABLE IF NOT EXISTS novels (
                 novel_id SERIAL PRIMARY KEY,
                 image_url VARCHAR(255),
-                image_cover_url VARCHAR(255),
                 title VARCHAR(255),
                 genre TEXT[],
                 synopsis TEXT,
