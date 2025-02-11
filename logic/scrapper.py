@@ -5,6 +5,9 @@ import re
 from insert.insert import insert_novel, insert_chapter, update_last_chapter
 from checker.checker import get_last_chapter
 from alter.updater import update_subchapters
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 def call_url_and_solve(sb, link):
     sb.get(link)
@@ -18,14 +21,19 @@ def handle_next_page(sb, soup):
             try:
                 next_page_url = next_page_link.find("a")["href"]
                 print(f"Going to next page: {next_page_url}")
+                
+                WebDriverWait(sb, 30).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, "li.PagedList-skipToNext a"))
+                )
+                
                 call_url_and_solve(sb, next_page_url)
                 return True
             except Exception as e:
                 print(f"Error occurred: {e}. Retrying...")
                 time.sleep(1)
         else:
-            print("No more retries, exiting scraping.")
-            return False
+            print("retrigger handle next page")
+            handle_next_page(sb, soup)
     else:
         print("No more pages to scrape.")
         return False
@@ -194,6 +202,7 @@ def scrape(sb, url):
             link, title = extract_title_link(item)
             print("-" * 80)
 
+
             try:
                 print(f"Clicking on the link: {link}")
                 call_url_and_solve(sb, link)
@@ -206,21 +215,22 @@ def scrape(sb, url):
                 summary = extract_summary(detail_soup)
                 tags = extract_tags(detail_soup)
                 author = extract_author(detail_soup)
-                novel_id = insert_novel(image, title, summary, author, categories, tags)
-                chapter_link = navigate_to_chapters(detail_soup)
-                try:
-                    print(f"Clicking on the chapter_link: {chapter_link}")
-                    call_url_and_solve(sb, chapter_link)
-                    page_source = sb.page_source
-                    chapter_soup = BeautifulSoup(page_source, 'html.parser')
-                    chapter = navigate_to_first_chapter(chapter_soup, novel_id)
-                    print(f"Chapter go to {chapter}")
-                    print(f"novel_id go to {novel_id}")
-                    process_chapters(sb, chapter, novel_id)
+                insert_novel(image, title, summary, author, categories, tags)
+                # novel_id = insert_novel(image, title, summary, author, categories, tags)
+                # chapter_link = navigate_to_chapters(detail_soup)
+                # try:
+                #     print(f"Clicking on the chapter_link: {chapter_link}")
+                #     call_url_and_solve(sb, chapter_link)
+                #     page_source = sb.page_source
+                #     chapter_soup = BeautifulSoup(page_source, 'html.parser')
+                #     chapter = navigate_to_first_chapter(chapter_soup, novel_id)
+                #     print(f"Chapter go to {chapter}")
+                #     print(f"novel_id go to {novel_id}")
+                #     process_chapters(sb, chapter, novel_id)
                 
-                except Exception as e:
-                    print(f"Error occurred while clicking the link: {e}")
-                    continue
+                # except Exception as e:
+                #     print(f"Error occurred while clicking the link: {e}")
+                #     continue
 
             except Exception as e:
                 print(f"Error occurred while clicking the link: {e}")

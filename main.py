@@ -52,8 +52,8 @@ class LightNovelScraper:
 BRIGHTDATA_PROXY = os.getenv('BRIGHTDATA_PROXY')
 
 # Define the URL to scrape.
-url = "https://www.lightnovelcave.com/browse/genre-action-04061342/order-new/status-all?page=55"
-scraper = LightNovelScraper(url, BRIGHTDATA_PROXY, use_proxy_probability=0.5)
+url = "https://www.lightnovelcave.com/browse/genre-action-04061342/order-new/status-all?page=10"
+scraper = LightNovelScraper(url, BRIGHTDATA_PROXY, use_proxy_probability=0.0)
 
 # Start the Selenium session and run the scraper.
 driver = scraper.start_session()

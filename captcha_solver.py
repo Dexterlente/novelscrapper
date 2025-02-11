@@ -10,11 +10,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 load_dotenv()
 
-
-# def solve_captcha(sb: SB):
-#     sb.uc_gui_click_captcha()
-#     sb.assert_element('img[alt="Light Novel Cave"]', timeout=3)
-
 def get_element(locator, browser):
     return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
@@ -44,7 +39,7 @@ def get_captcha_params(browser):
     """
     browser.execute_script(intercept_script)
     # Wait a few seconds to allow the logs to be generated.
-    time.sleep(10)
+    time.sleep(5)
     logs = browser.get_log("browser")
     params = None
     for log in logs:

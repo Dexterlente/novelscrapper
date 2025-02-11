@@ -88,7 +88,8 @@ WHERE novel_id NOT IN (
     SELECT DISTINCT novel_id
     FROM chapters
     WHERE index = 1
-);
+)
+ORDER BY novel_id;
 
 """
 
