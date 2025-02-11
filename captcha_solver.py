@@ -1,22 +1,22 @@
-from seleniumbase import SB
 import os
 from dotenv import load_dotenv
 import re
 import time
 import json
 from twocaptcha import TwoCaptcha
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 
 load_dotenv()
 
 
-def solve_captcha(sb: SB):
-    sb.uc_gui_click_captcha()
-    sb.assert_element('img[alt="Light Novel Cave"]', timeout=3)
+# def solve_captcha(sb: SB):
+#     sb.uc_gui_click_captcha()
+#     sb.assert_element('img[alt="Light Novel Cave"]', timeout=3)
 
 def get_element(locator, browser):
-    # return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
-    return browser.wait_for_element_clickable(locator)
-
+    return WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.XPATH, locator)))
 
 def get_captcha_params(browser):
     browser.refresh()
@@ -44,8 +44,8 @@ def get_captcha_params(browser):
     """
     browser.execute_script(intercept_script)
     # Wait a few seconds to allow the logs to be generated.
-    time.sleep(5)
-    logs = browser.driver.get_log("browser")
+    time.sleep(10)
+    logs = browser.get_log("browser")
     params = None
     for log in logs:
         if "intercepted-params:" in log['message']:
@@ -59,7 +59,6 @@ def get_captcha_params(browser):
     print("Parameters received:", params)
     return params
 
-apikey = os.getenv('apikey')
 def solver_captcha(apikey, params):
     solver = TwoCaptcha(apikey)
     try:
@@ -89,7 +88,8 @@ def final_message(browser):
     print("Final message:", message)
 
 
-def capcha_solver(browser):
+def trigger_capcha(browser):
+    apikey = os.getenv('apikey') 
     params = get_captcha_params(browser)
     if params:
         token = solver_captcha(apikey, params)

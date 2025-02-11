@@ -1,15 +1,14 @@
 from bs4 import BeautifulSoup
 import time
-from captcha_solver import solve_captcha
+from captcha_solver import trigger_capcha
 import re
 from insert.insert import insert_novel, insert_chapter, update_last_chapter
 from checker.checker import get_last_chapter
 from alter.updater import update_subchapters
 
 def call_url_and_solve(sb, link):
-    sb.uc_open_with_reconnect(link)
-    solve_captcha(sb)
-    # capcha_solver(sb)
+    sb.get(link)
+    trigger_capcha(sb)
 
 def handle_next_page(sb, soup):
     """Handles the process of finding and opening the next page."""
@@ -144,7 +143,7 @@ def process_chapters(sb, chapter, novel_id):
             print(f"Clicking on the chapter: {chapter}")
    
             call_url_and_solve(sb, chapter)
-            page_source = sb.get_page_source()
+            page_source = sb.page_source
             soup = BeautifulSoup(page_source, 'html.parser')
             
             chapter_title, content = extract_chapter(soup)
@@ -181,11 +180,10 @@ def process_chapters(sb, chapter, novel_id):
 def scrape(sb, url):
 
     call_url_and_solve(sb, url)  
-    sb.set_messenger_theme(location="top_left")
-    sb.post_message("SeleniumBase wasn't detected", duration=3)
-
+    sb.save_screenshot("screenshot.png")
+    print()
     while True:
-        page_source = sb.get_page_source()
+        page_source = sb.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
 
         novel_items = soup.find_all(class_="novel-item")
@@ -200,7 +198,7 @@ def scrape(sb, url):
                 print(f"Clicking on the link: {link}")
                 call_url_and_solve(sb, link)
 
-                page_source = sb.get_page_source()
+                page_source = sb.page_source
                 detail_soup = BeautifulSoup(page_source, 'html.parser')
 
                 image = extract_image(detail_soup)
@@ -213,7 +211,7 @@ def scrape(sb, url):
                 try:
                     print(f"Clicking on the chapter_link: {chapter_link}")
                     call_url_and_solve(sb, chapter_link)
-                    page_source = sb.get_page_source()
+                    page_source = sb.page_source
                     chapter_soup = BeautifulSoup(page_source, 'html.parser')
                     chapter = navigate_to_first_chapter(chapter_soup, novel_id)
                     print(f"Chapter go to {chapter}")
